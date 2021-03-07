@@ -1,23 +1,24 @@
 /* -----------------------------------------------------------------------
-   Macro   :    cxlib_options
-   Version :    $version$
-   Author  :    Magnus Mengelbier, Limelogic AB
-   -----------------------------------------------------------------------
-   Description
+Macro   :    cxlib_options
+Version :    $version$
+Author  :    Magnus Mengelbier, Limelogic AB
+Project :    https://github.com/limelogic/cxlibsas
+-----------------------------------------------------------------------
+Description
 
-    Utility macro to enable or disable cxLib options
+Utility macro to enable or disable cxLib options
 
-   -----------------------------------------------------------------------
-   Parameters
+-----------------------------------------------------------------------
+Parameters
 
-      options     List of options to enable or disable. An option name 
-                  with a leading dash/minus implies option is disabled
+  options     List of options to enable or disable. An option name 
+              with a leading dash/minus implies option is disabled
 
-   -----------------------------------------------------------------------
-   License
-    
-    GNU Public License v3
-   ----------------------------------------------------------------------- */
+-----------------------------------------------------------------------
+License
+
+GNU Public License v3
+----------------------------------------------------------------------- */
 
 
 %macro cxlib_options( options = ) ;
