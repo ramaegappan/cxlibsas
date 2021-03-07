@@ -23,9 +23,11 @@ GNU Public License v3
 
 %macro cxlib_options( options = ) ;
 
-    %put %str(NO)TE:  Macro cxlib_options ;
-    %put %str(NO)TE:  Version $version$ ;
 
+    %if ( %sysmexecdepth = 1 ) or ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) > 0 ) %then %do;
+        %put %str(NO)TE:  Macro cxlib_options ;
+        %put %str(NO)TE:  Version $version$ ;
+    %end;
 
     %global CXLIB_OPTIONS ;
 
