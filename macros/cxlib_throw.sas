@@ -30,12 +30,16 @@ GNU Public License v3
 ----------------------------------------------------------------------- */
 
 
-%macro cxlib_throw( code = , message = );
+%macro cxlib_throw( message = , code = &syscc );
 
 
     %global CXLIB_OPTIONS ;
 
-    %local tfinit_work_path ;
+    %local tfthrow_code 
+           tfthrow_severity 
+           tfthrow_message 
+           tfthrow_calling
+    ;
 
 
     %* ---  debug header  --- ;
@@ -46,20 +50,65 @@ GNU Public License v3
 
     %end;
 
-    %* ---  update SYSCC and SYSMSG  --- ;
-    %if ( &syscc = 0 ) %then %do;
-        %let syscc = &code ;
-        %let sysmsg = &message ;
+
+    %* ---  identify calling macro  --- ;
+    %if ( %eval( %sysmexecdepth - 1 ) > 0 ) %then %do;
+        %let tfthrow_calling = %sysmexecname( %eval( %sysmexecdepth - 1 ) ) ;
+    %end; %else %do;
+        %let tfthrow_calling = program;
     %end;
 
 
-    %* ---  add error to the log  --- ;
-    %put %str(ER)ROR: &message (CODE=&code);
+    %* ---  establish status code  --- ;
+    %if ( &code ^= %str( ) ) %then %do;
+        %* if we are provided a code ... use that ;
 
+        %let tfthrow_code = &code;
+
+    %end; %else %do;
+        %* if we are not provided a code ... look at SYSCC ;
+
+        %if ( &syscc ^= 0 ) %then %do; 
+            %let tfthrow_code = &syscc;    
+        %end; %else %do;
+            %*  some default code if SYSCC = 0 ;
+            %let tfthrow_code = 1024;
+        %end;
+
+    %end;
+
+
+    %*  use SAS convention with SYSCC ... 8 or less it is a w.a.r.n.i.n.g  ;
+    %if ( &tfthrow_code <= 8 ) %then %do; 
+        %let tfthrow_severity = %str(Wa)rning;
+    %end; %else %do;
+        %let tfthrow_severity = %str(Er)ror;
+    %end;
+
+
+    %* ---  the status code  --- ;
+    %if ( &message ^= %str( ) ) %then %do;
+        %let tfthrow_message = &message;
+    %end; %else %do;
+        %let tfthrow_message = &tfthrow_severity occurred in macro &tfthrow_calling;
+    %end;
+
+
+
+    %* ---  update SYSCC and SYSMSG  --- ;
+    %if ( &syscc = 0 ) %then %do;
+        %let syscc = &tfthrow_code ;
+        %let sysmsg = &tfthrow_message ;
+    %end;
+
+
+    %* ---  main log entry ;
+    %put %upcase(&tfthrow_severity): &tfthrow_message (CODE=&tfthrow_code);
 
     %* ---  add information about the calling macro  --- ;
-    %if ( %eval( %sysmexecdepth - 1 ) > 0 ) %then %do;
-        %put ERROR: Thrown by %sysmexecname( %eval( %sysmexecdepth - 1 ) ) ;
+    %if ( &message ^= %str( ) ) %then %do;
+        %* -- avoid duplicating information in the log ;
+        %put %upcase(&tfthrow_severity): Thrown by macro &tfthrow_calling ;
     %end;
 
 
