@@ -56,4 +56,11 @@ GNU Public License v3
     %* ---  add error to the log  --- ;
     %put %str(ER)ROR: &message (CODE=&code);
 
+
+    %* ---  add information about the calling macro  --- ;
+    %if ( %eval( %sysmexecdepth - 1 ) > 0 ) %then %do;
+        %put ERROR: Thrown by %sysmexecname( %eval( %sysmexecdepth - 1 ) ) ;
+    %end;
+
+
 %mend;
