@@ -43,7 +43,7 @@ GNU Public License v3
 
 
     %* ---  debug header  --- ;
-    %if ( %sysfunc(indexw( DEBUG, %upcase(&CXLIB_OPTIONS), %str( ) )) ) %then %do;
+    %if ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) > 0 ) %then %do;
 
         %put %str(NO)TE:  Macro cxlib_throw ;
         %put %str(NO)TE:  Version $version$ ;
@@ -104,12 +104,12 @@ GNU Public License v3
 
     %* ---  main log entry ;
     %put %upcase(&tfthrow_severity): &tfthrow_message (CODE=&tfthrow_code);
-
+ 
     %* ---  add information about the calling macro  --- ;
     %if ( &message ^= %str( ) ) %then %do;
         %* -- avoid duplicating information in the log ;
         %put %upcase(&tfthrow_severity): Thrown by macro &tfthrow_calling ;
     %end;
-
+   
 
 %mend;
