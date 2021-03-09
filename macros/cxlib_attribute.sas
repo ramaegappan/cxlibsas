@@ -44,6 +44,18 @@ GNU Public License v3
     %end;
 
 
+    %* ---  verify attribute store exists  --- ;
+
+    %if ( %sysfunc(exist( _cxlib_.attr )) = 0 ) %then %do;
+
+        %cxlib_throw( message = The attribute data set does not exist, code = 10021 );
+        %goto macro_exit ;
+
+    %end;
+
+    %* ---  end of verify attribute store exists  --- ;
+
+
     %* ---  validate return variable exists  --- ;
 
     %let cxattr_return_scope = ;

@@ -41,6 +41,18 @@ GNU Public License v3
     %end;
 
 
+    %* ---  verify attribute store exists  --- ;
+
+    %if ( %sysfunc(exist( _cxlib_.attr )) = 0 ) %then %do;
+
+        %cxlib_throw( message = The attribute data set does not exist, code = 10021 );
+        %goto macro_exit ;
+
+    %end;
+
+    %* ---  end of verify attribute store exists  --- ;
+
+
 
     %* ---  get parameters in data set format  --- ;
 
@@ -107,7 +119,8 @@ GNU Public License v3
     %macro_exit:
 
 
-    %if ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) = 0 ) %then %do;
+    %if ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) = 0 ) and 
+        ( %sysfunc(libref(_CXWRK_)) = 0 ) %then %do;
 
         proc datasets  library = _cxwrk_  nolist nodetails ;
             delete cxattr_: ;  run;
