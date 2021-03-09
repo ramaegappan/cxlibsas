@@ -84,7 +84,7 @@ GNU Public License v3
     %* ---  end of reset conidition code  --- ;
 
 
-    %* ---  set up cxlib worker library  --- ;
+    %* ---  set up cxlib library  --- ;
 
     %if ( %sysfunc(libref(_CXLIB_)) < 0 ) %then %do; 
        %*  there is an issue with the library assignment ... just clear it ;
@@ -121,12 +121,77 @@ GNU Public License v3
 
     %end;
 
+    %* ---  end of set up cxlib library  --- ;
+
+
+    %* ---  init attribute store  --- ;
+
+    %if ( %sysfunc(exist( _cxlib_.attr )) = 0 ) %then %do;
+
+        proc sql noprint;
+            create table _cxlib_.attr (
+                name         char(256),
+                value        char(1024)
+            );
+        quit;
+
+    %end;
+
+    %if ( &syscc > 0 ) %then %do;
+
+        %cxlib_throw( message = Could not initialize cxLib attribute data set );
+        %goto macro_exit ;
+
+    %end;
+
+    %* ---  end of init attribute store  --- ;
+
+
+
+    %* ---  set up cxlib worker library  --- ;
+    %* note:  this library is a transient work area for temporary data sets only  ;
+
+    %if ( %sysfunc(libref(_CXWRK_)) < 0 ) %then %do; 
+       %*  there is an issue with the library assignment ... just clear it ;
+       %let rc = %sysfunc(libname( _CXWRK_ ));
+    %end;
+
+
+    %if ( %sysfunc(libref(_CXWRK_)) > 0 ) %then %do; 
+
+        %let cxinit_work_path = %sysfunc(pathname(work))/_cxwork ;
+
+        %if ( %sysfunc(fileexist(&cxinit_work_path)) = 0 ) %then %do;
+
+            %* create library path as it does not exist ;
+            %if ( %sysfunc(dcreate( _cxwork, %sysfunc(pathname(WORK)) )) = %str( ) ) %then %do;
+                %cxlib_throw( code = 12001, message = Could not create cxLib worker library directory  );
+                %goto macro_exit ;
+            %end;
+        %end;
+
+        %if ( %sysfunc(libname( _CXWRK_, &cxinit_work_path )) ^= 0 ) %then %do;
+
+            %cxlib_throw( code = 1100, message = Could not assign liibname _CXWRK_ );
+            %goto macro_exit ;
+
+        %end;
+
+    %end;
+     
+    %if ( &syscc > 0 ) %then %do;
+
+        %cxlib_throw( message = Could not initialize cxLib worker library &cxinit_work_path );
+        %goto macro_exit ;
+
+    %end;
 
     %* ---  end of set up cxlib worker library  --- ;
 
 
+
     %* ---  initialise cxlib options  --- ;
-    %cxlib_options( options = &options )
+    %cxlib_options( options = &options ) ;
 
     %if ( &syscc > 0 ) %then %do;
 
