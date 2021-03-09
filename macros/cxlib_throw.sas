@@ -87,7 +87,7 @@ GNU Public License v3
 
 
     %* ---  the status code  --- ;
-    %if ( &message ^= %str( ) ) %then %do;
+    %if ( %str(&message) ^= %str() ) %then %do;
         %let tfthrow_message = &message;
     %end; %else %do;
         %let tfthrow_message = &tfthrow_severity occurred in macro &tfthrow_calling;
@@ -106,7 +106,7 @@ GNU Public License v3
     %put %upcase(&tfthrow_severity): &tfthrow_message (CODE=&tfthrow_code);
  
     %* ---  add information about the calling macro  --- ;
-    %if ( &message ^= %str( ) ) %then %do;
+    %if ( %str(&message) ^= %str() ) %then %do;
         %* -- avoid duplicating information in the log ;
         %put %upcase(&tfthrow_severity): Thrown by macro &tfthrow_calling ;
     %end;
