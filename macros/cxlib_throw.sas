@@ -35,10 +35,11 @@ GNU Public License v3
 
     %global CXLIB_OPTIONS ;
 
-    %local tfthrow_code 
-           tfthrow_severity 
-           tfthrow_message 
-           tfthrow_calling
+    %local cxthrow_code 
+           cxthrow_severity 
+           cxthrow_message 
+           cxthrow_calling
+           cxthrow_depth
     ;
 
 
@@ -53,9 +54,9 @@ GNU Public License v3
 
     %* ---  identify calling macro  --- ;
     %if ( %eval( %sysmexecdepth - 1 ) > 0 ) %then %do;
-        %let tfthrow_calling = %sysmexecname( %eval( %sysmexecdepth - 1 ) ) ;
+        %let cxthrow_calling = %sysmexecname( %eval( %sysmexecdepth - 1 ) ) ;
     %end; %else %do;
-        %let tfthrow_calling = program;
+        %let cxthrow_calling = program;
     %end;
 
 
@@ -63,53 +64,59 @@ GNU Public License v3
     %if ( &code ^= %str( ) ) %then %do;
         %* if we are provided a code ... use that ;
 
-        %let tfthrow_code = &code;
+        %let cxthrow_code = &code;
 
     %end; %else %do;
         %* if we are not provided a code ... look at SYSCC ;
 
         %if ( &syscc ^= 0 ) %then %do; 
-            %let tfthrow_code = &syscc;    
+            %let cxthrow_code = &syscc;    
         %end; %else %do;
             %*  some default code if SYSCC = 0 ;
-            %let tfthrow_code = 1024;
+            %let cxthrow_code = 1024;
         %end;
 
     %end;
 
 
     %*  use SAS convention with SYSCC ... 8 or less it is a w.a.r.n.i.n.g  ;
-    %if ( &tfthrow_code <= 8 ) %then %do; 
-        %let tfthrow_severity = %str(Wa)rning;
+    %if ( &cxthrow_code <= 8 ) %then %do; 
+        %let cxthrow_severity = %str(Wa)rning;
     %end; %else %do;
-        %let tfthrow_severity = %str(Er)ror;
+        %let cxthrow_severity = %str(Er)ror;
     %end;
 
 
     %* ---  the status code  --- ;
     %if ( %str(&message) ^= %str() ) %then %do;
-        %let tfthrow_message = &message;
+        %let cxthrow_message = &message;
     %end; %else %do;
-        %let tfthrow_message = &tfthrow_severity occurred in macro &tfthrow_calling;
+        %let cxthrow_message = &cxthrow_severity occurred in macro &cxthrow_calling;
     %end;
 
 
 
     %* ---  update SYSCC and SYSMSG  --- ;
     %if ( &syscc = 0 ) %then %do;
-        %let syscc = &tfthrow_code ;
-        %let sysmsg = &tfthrow_message ;
+        %let syscc = &cxthrow_code ;
+        %let sysmsg = &cxthrow_message ;
     %end;
 
 
     %* ---  main log entry ;
-    %put %upcase(&tfthrow_severity): &tfthrow_message (CODE=&tfthrow_code);
+    %put %upcase(&cxthrow_severity): &cxthrow_message (CODE=&cxthrow_code);
  
     %* ---  add information about the calling macro  --- ;
     %if ( %str(&message) ^= %str() ) %then %do;
         %* -- avoid duplicating information in the log ;
-        %put %upcase(&tfthrow_severity): Thrown by macro &tfthrow_calling ;
+        %put %upcase(&cxthrow_severity): Thrown by macro &cxthrow_calling ;
     %end;
-   
+
+
+    %* ---  add calling macro trace  --- ;
+    %do cxthrow_depth = %eval( %sysmexecdepth - 2 ) %to 1 %by -1;
+        %put %upcase(&cxthrow_severity): called from macro %str()%sysmexecname( &cxthrow_depth ) ;
+    %end; 
+
 
 %mend;
