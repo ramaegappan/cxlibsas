@@ -122,16 +122,17 @@ GNU Public License v3
 
 
     %* ---  parameter NAME  --- ;
-    %if ( %upcase(&silent) = N ) %then %do;
+    %if ( %upcase(&silent) = N ) or 
+        ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) > 0 ) %then %do;
         %*  parameter NAME only used if not silent mode ;
 
         %if ( %superq(name) = %str() ) %then %do;
-            %cxlib_throw( code = 12001, message = The parameter NAME is not specified and SILENT mode is disabled);
+            %cxlib_throw( code = 12001, message = The parameter NAME is not specified and SILENT mode is disabled or DEBUG is enabled);
             %goto macro_exit;
         %end;
 
         %if ( %sysfunc(countw(&name, %str( ))) ^= 1 ) %then %do;
-            %cxlib_throw( code = 12001, message = The value of parameter NAME is not valid and SILENT mode is disabled);
+            %cxlib_throw( code = 12001, message = The value of parameter NAME is not valid and SILENT mode is disabled or DEBUG is enabled);
             %goto macro_exit;
         %end;
 
@@ -154,7 +155,8 @@ GNU Public License v3
 
         %let cxchk_flag = 0 ;
 
-        %if ( %upcase(&silent) = N ) %then %do;
+        %if ( %upcase(&silent) = N ) or 
+            ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) > 0 ) %then %do;
             %cxlib_throw( code = 12001, message = The parameter %upcase(&name) is not specified &cxchk_flag_caller );
         %end;
 
@@ -175,7 +177,8 @@ GNU Public License v3
 
         %let cxchk_flag = 0 ;
 
-        %if ( %upcase(&silent) = N ) %then %do;
+        %if ( %upcase(&silent) = N ) or 
+            ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) > 0 ) %then %do;
             %cxlib_throw( code = 12001, message = The value of parameter %upcase(&name) can only contain a single valid value  &cxchk_flag_caller);
         %end;
 
@@ -189,7 +192,8 @@ GNU Public License v3
 
         %let cxchk_flag = 0 ;
 
-        %if ( %upcase(&silent) = N ) %then %do;
+        %if ( %upcase(&silent) = N ) or 
+            ( %sysfunc(indexw( %upcase(&CXLIB_OPTIONS), DEBUG, %str( ) )) > 0 ) %then %do;
             %cxlib_throw( code = 12001, message = The value of parameter %upcase(&name) is not valid &cxchk_flag_caller );
         %end;
 
