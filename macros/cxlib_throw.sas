@@ -115,8 +115,8 @@ GNU Public License v3
 
     %* ---  add calling macro trace  --- ;
     %do cxthrow_depth = %eval( %sysmexecdepth - 2 ) %to 1 %by -1;
-        %put %upcase(&cxthrow_severity): called from macro %str()%sysmexecname( &cxthrow_depth ) ;
+        %put %upcase(&cxthrow_severity): called in %str()%sysmexecname( &cxthrow_depth ) ;
     %end; 
-
+                                                 
 
 %mend;
